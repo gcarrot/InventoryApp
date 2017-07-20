@@ -58,7 +58,6 @@ public class ItemCursorAdapter extends CursorAdapter {
         double itemPrice = cursor.getDouble(priceColumnIndex);
         int itemQuantity = cursor.getInt(quantityColumnIndex);
 
-        // Update the TextViews with the attributes for the current pet
         text_name.setText(itemName);
         text_price.setText(context.getResources().getString(R.string.price) + " " + String.valueOf(itemPrice) + "€");
         text_quantity.setText(String.valueOf(itemQuantity));

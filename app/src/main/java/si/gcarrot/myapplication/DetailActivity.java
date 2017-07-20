@@ -330,7 +330,7 @@ public class DetailActivity extends AppCompatActivity implements
         values.put(ItemEntry.COLUMN_ITEM_PRICE, price);
 
 
-        // Determine if this is a new or existing pet by checking if mCurrentPetUri is null or not
+
         if (mCurrentItemUri == null) {
             // INSERT new item
             Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, values);
