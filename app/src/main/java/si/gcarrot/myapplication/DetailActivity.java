@@ -16,11 +16,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -30,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import si.gcarrot.myapplication.data.ItemContract.ItemEntry;
@@ -37,10 +40,12 @@ import si.gcarrot.myapplication.data.ItemContract.ItemEntry;
 public class DetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private String LOG_TAG = DetailActivity.class.getSimpleName();
     private static final int EXISTING_ITEM_LOADER = 0;
     private static final int PHOT_REQUEST = 0;
 
     private Uri mCurrentItemUri;
+    private Uri mCurrentUri;
 
     /** List of inputs **/
     private EditText mItemName;
@@ -261,10 +266,11 @@ public class DetailActivity extends AppCompatActivity implements
             mItemName.setText(name);
             mItemPrice.setText(String.valueOf(price));
             mItemQuantity.setText(String.valueOf(quantityItem));
-
             if (picture != null) {
+
                 Bitmap img = BitmapFactory.decodeByteArray(picture, 0, picture.length);
                 Drawable dIMG = new BitmapDrawable(getResources(), img);
+                Log.i("Urban", "testimage: " + img);
                 mItemImg.setImageDrawable(dIMG);
             }
 
@@ -285,6 +291,38 @@ public class DetailActivity extends AppCompatActivity implements
         mItemSupplier_phone.setText("");
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // If user cancel selection then dont do noting
+        if(data != null) {
+            mCurrentUri = data.getData();
+            getImage(mCurrentUri);
+        }
+
+    }
+
+    public void getImage(Uri uri) {
+        try
+        {
+            Bitmap bounds = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+
+            setImage(bounds);
+        }
+        catch (Exception e)
+        {
+            //handle exception
+            Log.e(LOG_TAG, "Error while uploading image");
+        }
+
+    }
+
+    public void setImage(Bitmap image) {
+        mItemImg.setImageBitmap(image);
+    }
+
     private void saveItem() {
         String nameString = mItemName.getText().toString().trim();
         String priceString = mItemPrice.getText().toString().trim();
@@ -295,20 +333,27 @@ public class DetailActivity extends AppCompatActivity implements
         String sellerEmailString = mItemSupplier_email.getText().toString().trim();
 
         BitmapDrawable drawable = (BitmapDrawable) mItemImg.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
 
-        if (mCurrentItemUri == null &&
-                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
+        Bitmap bitmap = drawable.getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] imageInByte = stream.toByteArray();
+
+
+        if (mCurrentItemUri == null ||
+                TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) ||
                 TextUtils.isEmpty(quantityString)) {
             // Noting to do here because there are no changes
+            Toast.makeText(this, getString(R.string.input_validation_empty),
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
         ContentValues values = new ContentValues();
         values.put(ItemEntry.COLUMN_ITEM_NAME, nameString);
 
-        if (bitmap != null) {
-            values.put(ItemEntry.COLUMN_ITEM_PICTURE, bitmap.toString());
+        if (imageInByte != null) {
+            values.put(ItemEntry.COLUMN_ITEM_PICTURE, imageInByte);
         }
 
         values.put(ItemEntry.COLUMN_ITEM_SUPPLIER, sellerString);
@@ -455,17 +500,7 @@ public class DetailActivity extends AppCompatActivity implements
 
     private void callSupplier() {
         String phone_number = mItemSupplier_phone.getText().toString().trim();
-        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone_number));
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone_number, null));
         startActivity(intent);
     }
 

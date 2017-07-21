@@ -76,7 +76,7 @@ public class ItemCursorAdapter extends CursorAdapter {
                 if (oldNum > 0) {
                     btnSell.setVisibility(View.VISIBLE);
                     oldNum -= 1;
-                    if (oldNum >= 1) {
+                    if (oldNum >= 0) {
 
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(ItemEntry.COLUMN_ITEM_QUANTITY, oldNum);

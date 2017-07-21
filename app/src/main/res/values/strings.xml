@@ -68,4 +68,7 @@
     <string name="email_supplier">Send email</string>
 
 
+    <string name="input_validation_empty">Pleas enter data into filds they are empty.</string>
+
+
 </resources>

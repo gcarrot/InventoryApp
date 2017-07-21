@@ -135,7 +135,10 @@
             android:layout_height="wrap_content"
             app:srcCompat="@mipmap/ic_launcher2"
             android:id="@+id/image_item"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="@dimen/max_width_empty_image"
+            android:maxWidth="@dimen/max_width_empty_image" />
 
         <Button
             android:text="@string/btn_add_image"
