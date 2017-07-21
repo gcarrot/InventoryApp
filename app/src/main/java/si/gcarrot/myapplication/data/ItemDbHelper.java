@@ -15,7 +15,7 @@ public class ItemDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "inventory.db";
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public ItemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

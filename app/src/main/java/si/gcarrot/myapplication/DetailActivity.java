@@ -244,6 +244,8 @@ public class DetailActivity extends AppCompatActivity implements
             return;
         }
 
+        Log.i("Urban", String.valueOf(cursor.getCount()));
+
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
         if (cursor.moveToFirst()) {
@@ -267,11 +269,10 @@ public class DetailActivity extends AppCompatActivity implements
             mItemPrice.setText(String.valueOf(price));
             mItemQuantity.setText(String.valueOf(quantityItem));
             if (picture != null) {
-
                 Bitmap img = BitmapFactory.decodeByteArray(picture, 0, picture.length);
                 Drawable dIMG = new BitmapDrawable(getResources(), img);
-                Log.i("Urban", "testimage: " + img);
                 mItemImg.setImageDrawable(dIMG);
+
             }
 
             mItemSupplier.setText(supplier);
@@ -332,29 +333,34 @@ public class DetailActivity extends AppCompatActivity implements
         String sellerPhoneString = mItemSupplier_phone.getText().toString().trim();
         String sellerEmailString = mItemSupplier_email.getText().toString().trim();
 
-        BitmapDrawable drawable = (BitmapDrawable) mItemImg.getDrawable();
-
-        Bitmap bitmap = drawable.getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] imageInByte = stream.toByteArray();
 
 
-        if (mCurrentItemUri == null ||
-                TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) ||
-                TextUtils.isEmpty(quantityString)) {
+        if (mCurrentItemUri == null && (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString) ||
+                TextUtils.isEmpty(quantityString))) {
             // Noting to do here because there are no changes
             Toast.makeText(this, getString(R.string.input_validation_empty),
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
+
         ContentValues values = new ContentValues();
         values.put(ItemEntry.COLUMN_ITEM_NAME, nameString);
 
-        if (imageInByte != null) {
-            values.put(ItemEntry.COLUMN_ITEM_PICTURE, imageInByte);
+        if(mItemImg.getDrawable() != null) {
+            BitmapDrawable drawable = (BitmapDrawable) mItemImg.getDrawable();
+
+            Bitmap bitmap = drawable.getBitmap();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byte[] imageInByte = stream.toByteArray();
+
+            if (imageInByte != null) {
+                values.put(ItemEntry.COLUMN_ITEM_PICTURE, imageInByte);
+            }
         }
+
+
 
         values.put(ItemEntry.COLUMN_ITEM_SUPPLIER, sellerString);
         values.put(ItemEntry.COLUMN_ITEM_SUPPLIER_EMAIL, sellerEmailString);
